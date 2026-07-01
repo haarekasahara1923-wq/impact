@@ -17,13 +17,13 @@ export async function POST(request: Request) {
 
     // 1. Check Admin Credentials first (hardcoded as per user request)
     if (
-      normalizedEmail === 'manvendrasingh7283@gmail.com' &&
-      password === 'impact@admin2024'
+      normalizedEmail === 'payalrajawat789@gmail.com' &&
+      password === 'Rajawat123#'
     ) {
       const token = await signToken({
         id: 0,
         email: normalizedEmail,
-        name: 'Manvendra Singh',
+        name: 'Payal Rajawat',
         role: 'admin',
       });
 
