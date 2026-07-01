@@ -12,10 +12,14 @@ if (isPlaceholder) {
   console.warn('Warning: DATABASE_URL is not configured or is a placeholder. Database operations will fail at runtime.');
 }
 
-// Lazy-initialized SQL client safe for build time evaluation
-export const sql = !isPlaceholder ? neon(databaseUrl) : ((async () => {
+const neonClient = !isPlaceholder ? neon(databaseUrl) : ((async () => {
   throw new Error('DATABASE_URL is not configured correctly. Please update it in .env.local');
 }) as any);
+
+export const sql = async (queryText: string, params?: any[]) => {
+  if (isPlaceholder) return neonClient();
+  return (neonClient as any).query(queryText, params);
+};
 
 /**
  * Initialize database tables if they do not exist.
