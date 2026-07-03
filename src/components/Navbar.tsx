@@ -44,7 +44,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <Image 
-              src="/logo.png" 
+              src="/logo.jpg" 
               alt="Impact Institute Logo" 
               width={250} 
               height={70} 

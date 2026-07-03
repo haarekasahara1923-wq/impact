@@ -19,7 +19,7 @@ export default function Footer() {
           <div>
             <Link href="/" className="flex items-center group mb-6">
               <Image 
-                src="/logo.png" 
+                src="/logo.jpg" 
                 alt="Impact Institute Logo" 
                 width={200} 
                 height={60} 
