@@ -432,10 +432,7 @@ export default function AdmissionPage() {
                         Class Category
                       </th>
                       <th scope="col" className="px-6 py-4 border-b border-slate-100">
-                        Monthly Tuition Fee
-                      </th>
-                      <th scope="col" className="px-6 py-4 border-b border-slate-100">
-                        One-Time Admission Fee
+                        Yearly Tuition Fee
                       </th>
                     </tr>
                   </thead>
@@ -445,10 +442,7 @@ export default function AdmissionPage() {
                         3rd – 5th
                       </td>
                       <td className="px-6 py-4 text-slate-900 border-b border-slate-100 font-semibold">
-                        ₹500 / month
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 border-b border-slate-100">
-                        ₹200
+                        ₹5000 / year
                       </td>
                     </tr>
                     <tr className="hover:bg-slate-50/55 transition-colors">
@@ -456,10 +450,7 @@ export default function AdmissionPage() {
                         6th – 8th
                       </td>
                       <td className="px-6 py-4 text-slate-900 border-b border-slate-100 font-semibold">
-                        ₹700 / month
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 border-b border-slate-100">
-                        ₹200
+                        ₹6000 / year
                       </td>
                     </tr>
                     <tr className="hover:bg-slate-50/55 transition-colors">
@@ -467,21 +458,15 @@ export default function AdmissionPage() {
                         9th – 10th
                       </td>
                       <td className="px-6 py-4 text-slate-900 border-b border-slate-100 font-semibold">
-                        ₹900 / month
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 border-b border-slate-100">
-                        ₹300
+                        ₹8000 / year
                       </td>
                     </tr>
                     <tr className="hover:bg-slate-50/55 transition-colors">
                       <td className="px-6 py-4 font-bold text-slate-900 border-b border-slate-100">
-                        11th – 12th (Arts Stream)
+                        11th – 12th
                       </td>
                       <td className="px-6 py-4 text-slate-900 border-b border-slate-100 font-semibold">
-                        ₹1000 / month
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 border-b border-slate-100">
-                        ₹300
+                        ₹9000 / year
                       </td>
                     </tr>
                   </tbody>
