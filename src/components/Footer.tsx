@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { MapPin, Phone, Mail, BookOpen } from 'lucide-react';
 
 export default function Footer() {
@@ -16,14 +17,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           {/* Brand Info */}
           <div>
-            <Link href="/" className="flex items-center space-x-2 mb-6 group">
-              <div className="bg-accent text-white p-2 rounded-lg group-hover:scale-105 transition-transform duration-200">
-                <BookOpen className="h-6 w-6 text-primary" />
-              </div>
-              <span className="font-heading font-extrabold text-2xl tracking-tight text-white flex items-center">
-                Impact Institute
-                <span className="text-accent ml-0.5 text-3xl font-black">.</span>
-              </span>
+            <Link href="/" className="flex items-center group mb-6">
+              <Image 
+                src="/logo.png" 
+                alt="Impact Institute Logo" 
+                width={200} 
+                height={60} 
+                className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-200" 
+              />
             </Link>
             <p className="text-slate-300 text-sm mb-6 leading-relaxed">
               Empowering students to achieve academic excellence and build bright futures. Based in Gwalior, MP, India, we offer dedicated guidance for Class 3–12 students.

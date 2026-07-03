@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, X, BookOpen } from 'lucide-react';
 
@@ -41,14 +42,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="bg-primary text-white p-2 rounded-lg group-hover:scale-105 transition-transform duration-200">
-              <BookOpen className="h-6 w-6 text-accent" />
-            </div>
-            <span className="font-heading font-extrabold text-2xl tracking-tight text-primary flex items-center">
-              Impact Institute
-              <span className="text-accent ml-0.5 text-3xl font-black">.</span>
-            </span>
+          <Link href="/" className="flex items-center group">
+            <Image 
+              src="/logo.png" 
+              alt="Impact Institute Logo" 
+              width={250} 
+              height={70} 
+              className="h-14 w-auto object-contain group-hover:scale-105 transition-transform duration-200" 
+              priority
+            />
           </Link>
 
           {/* Desktop Nav Links */}
