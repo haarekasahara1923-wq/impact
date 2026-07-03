@@ -12,20 +12,12 @@ export default function AboutPage() {
       color: 'bg-blue-600 text-white',
     },
     {
-      name: 'R. K. Sharma',
-      role: 'Senior Humanities Advisor',
-      subject: 'History & Political Science (Class 11-12)',
-      experience: '15+ Years Experience',
-      initials: 'RS',
+      name: 'Sumit Singh Tomar',
+      role: 'Senior Faculty',
+      subject: 'Class 11th and 12th',
+      experience: 'Expert Mentor',
+      initials: 'ST',
       color: 'bg-orange-600 text-white',
-    },
-    {
-      name: 'Anjali Kushwah',
-      role: 'Foundation Faculty',
-      subject: 'English & Social Studies (Class 3-8)',
-      experience: '6+ Years Experience',
-      initials: 'AK',
-      color: 'bg-emerald-600 text-white',
     },
   ];
 
