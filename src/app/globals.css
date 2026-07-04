@@ -46,3 +46,55 @@ body {
     clip-path: polygon(0 0, 85% 0, 100% 100%, 0% 100%);
   }
 }
+
+/* ====== PWA Mobile App Styles ====== */
+
+/* Slide-up animation for install prompt */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-slide-up {
+  animation: slide-up 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* iOS safe area support */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+}
+
+/* Prevent text selection on app-like UI elements */
+nav a, button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Smooth momentum scrolling on iOS */
+main {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar in mobile nav */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Standalone PWA: hide default browser UI hints */
+@media (display-mode: standalone) {
+  body {
+    user-select: none;
+  }
+  main {
+    user-select: text;
+  }
+}
