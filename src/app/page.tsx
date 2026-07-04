@@ -66,20 +66,20 @@ export default function HomePage() {
 
   const testimonials = [
     {
-      name: 'Aditya Shivhare',
-      grade: 'Class 10 (94.2%)',
+      name: 'Ankit Gurjar',
+      grade: 'Class 10 (91.40%)',
       text: 'Impact Institute changed the way I look at Maths and Science. The teachers explain everything from basics, and the weekly test series helped me manage my time perfectly during board exams.',
       rating: 5,
     },
     {
-      name: 'Priya Bhadoria',
-      grade: 'Class 12 Arts (91.8%)',
+      name: 'Shivam Gurjar',
+      grade: 'Class 10 (89.40%)',
       text: 'Finding a coaching class specifically for Arts in Morar was difficult until I joined Impact. The study material for Geography and Political Science is top-notch, and the faculty is very supportive.',
       rating: 5,
     },
     {
-      name: 'Rohan Kushwah',
-      grade: 'Class 8 (88.5%)',
+      name: 'Ronak Bhadoriya',
+      grade: 'Class 10 (88.80%)',
       text: 'The small batch sizes meant that the teacher answered all my doubts immediately. My grades improved significantly within just six months of joining.',
       rating: 5,
     },
