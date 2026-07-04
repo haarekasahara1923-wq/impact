@@ -1,28 +1,13 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
-
-// Helper: generate Cloudinary signature manually using crypto
-function generateSignature(params: Record<string, string>, apiSecret: string): string {
-  // Sort params alphabetically and build the signing string
-  const sortedKeys = Object.keys(params).sort();
-  const stringToSign = sortedKeys
-    .map((key) => `${key}=${params[key]}`)
-    .join('&');
-  return crypto
-    .createHash('sha1')
-    .update(stringToSign + apiSecret)
-    .digest('hex');
-}
 
 export async function POST(req: Request) {
   try {
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    const apiKey = process.env.CLOUDINARY_API_KEY;
-    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET || 'impact_upload';
 
-    if (!cloudName || !apiKey || !apiSecret) {
+    if (!cloudName || cloudName === 'your_cloud_name') {
       return NextResponse.json(
-        { success: false, error: 'Cloudinary credentials are not configured in environment variables.' },
+        { success: false, error: 'CLOUDINARY_CLOUD_NAME is not configured in environment variables.' },
         { status: 500 }
       );
     }
@@ -38,27 +23,15 @@ export async function POST(req: Request) {
     const isVideo = file.type.startsWith('video/');
     const resourceType = isVideo ? 'video' : 'image';
 
-    // Build signature params — must match exactly what we send to Cloudinary
-    const timestamp = Math.floor(Date.now() / 1000).toString();
-    const folder = 'impact-institute';
-
-    const sigParams: Record<string, string> = {
-      folder,
-      timestamp,
-    };
-
-    const signature = generateSignature(sigParams, apiSecret);
-
-    // Build the multipart form for Cloudinary REST API
+    // Build FormData for Cloudinary unsigned upload — NO signature needed
     const cloudinaryFormData = new FormData();
     cloudinaryFormData.append('file', file);
-    cloudinaryFormData.append('api_key', apiKey);
-    cloudinaryFormData.append('timestamp', timestamp);
-    cloudinaryFormData.append('folder', folder);
-    cloudinaryFormData.append('signature', signature);
+    cloudinaryFormData.append('upload_preset', uploadPreset);   // unsigned preset
+    cloudinaryFormData.append('folder', 'impact-institute');
 
-    // POST directly to Cloudinary REST API
+    // POST directly to Cloudinary REST API (unsigned)
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+
     const cloudinaryRes = await fetch(uploadUrl, {
       method: 'POST',
       body: cloudinaryFormData,
@@ -67,7 +40,7 @@ export async function POST(req: Request) {
     const result = await cloudinaryRes.json();
 
     if (!cloudinaryRes.ok) {
-      console.error('Cloudinary API error:', result);
+      console.error('Cloudinary API error:', JSON.stringify(result));
       return NextResponse.json(
         { success: false, error: result?.error?.message || 'Cloudinary upload failed' },
         { status: 500 }
