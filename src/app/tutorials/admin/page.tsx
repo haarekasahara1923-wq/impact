@@ -25,6 +25,8 @@ export default async function AdminPage() {
   let noticesList: any[] = [];
   let studentsList: any[] = [];
   let admissionsList: any[] = [];
+  let galleryList: any[] = [];
+  let toppersList: any[] = [];
   let dbError = false;
   let dbErrorMessage = '';
 
@@ -33,6 +35,8 @@ export default async function AdminPage() {
     noticesList = await sql('SELECT * FROM notices ORDER BY id DESC');
     studentsList = await sql('SELECT * FROM students ORDER BY id DESC');
     admissionsList = await sql('SELECT * FROM admissions ORDER BY id DESC');
+    galleryList = await sql('SELECT * FROM gallery_items ORDER BY id DESC');
+    toppersList = await sql('SELECT * FROM toppers ORDER BY id ASC');
   } catch (error: any) {
     console.error('Error fetching admin dashboard data:', error);
     dbError = true;
@@ -75,6 +79,8 @@ export default async function AdminPage() {
         initialNotices={noticesList}
         initialStudents={studentsList}
         initialAdmissions={admissionsList}
+        initialGallery={galleryList}
+        initialToppers={toppersList}
         adminName={session.name}
       />
     </div>

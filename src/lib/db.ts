@@ -81,5 +81,30 @@ export async function initializeDatabase() {
     );
   `);
 
+  // Create gallery_items table
+  await sql(`
+    CREATE TABLE IF NOT EXISTS gallery_items (
+      id SERIAL PRIMARY KEY,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+  `);
+
+  // Create toppers table
+  await sql(`
+    CREATE TABLE IF NOT EXISTS toppers (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      class TEXT NOT NULL,
+      score TEXT NOT NULL,
+      rank_text TEXT NOT NULL,
+      award TEXT NOT NULL,
+      initials TEXT NOT NULL,
+      color_style TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+  `);
+
   console.log('Database tables successfully initialized.');
 }

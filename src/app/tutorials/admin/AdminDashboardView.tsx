@@ -15,6 +15,8 @@ import {
   PlusCircle,
   Users,
   GraduationCap,
+  Image as ImageIcon,
+  Trophy,
 } from 'lucide-react';
 
 interface AdminDashboardViewProps {
@@ -22,6 +24,8 @@ interface AdminDashboardViewProps {
   initialNotices: any[];
   initialStudents: any[];
   initialAdmissions: any[];
+  initialGallery: any[];
+  initialToppers: any[];
   adminName: string;
 }
 
@@ -30,15 +34,19 @@ export default function AdminDashboardView({
   initialNotices,
   initialStudents,
   initialAdmissions,
+  initialGallery,
+  initialToppers,
   adminName,
 }: AdminDashboardViewProps) {
-  const [activeTab, setActiveTab] = useState<'homework' | 'notices' | 'students' | 'admissions'>('homework');
+  const [activeTab, setActiveTab] = useState<'homework' | 'notices' | 'students' | 'admissions' | 'gallery' | 'toppers'>('homework');
 
   // Lists state
   const [homework, setHomework] = useState(initialHomework);
   const [notices, setNotices] = useState(initialNotices);
   const [students, setStudents] = useState(initialStudents);
   const [admissions, setAdmissions] = useState(initialAdmissions);
+  const [gallery, setGallery] = useState(initialGallery);
+  const [toppers, setToppers] = useState(initialToppers);
 
   // Forms state
   const [hwForm, setHwForm] = useState({
@@ -58,6 +66,21 @@ export default function AdminDashboardView({
     class: '',
     email: '',
     password: '',
+  });
+
+  const [galleryForm, setGalleryForm] = useState({
+    title: '',
+    description: '',
+  });
+
+  const [topperForm, setTopperForm] = useState({
+    name: '',
+    className: '',
+    score: '',
+    rankText: '',
+    award: '',
+    initials: '',
+    colorStyle: 'border-blue-200 text-blue-600 bg-blue-50', // default style
   });
 
   // Action feedback states
@@ -165,6 +188,68 @@ export default function AdminDashboardView({
     }
   };
 
+  const handleGallerySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearFeedback();
+    setSubmitting(true);
+
+    try {
+      const res = await fetch('/api/gallery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(galleryForm),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setGallery([data.data, ...gallery]);
+        setSuccessMsg('Gallery item added successfully!');
+        setGalleryForm({ title: '', description: '' });
+      } else {
+        setErrorMsg(data.error || 'Failed to add gallery item');
+      }
+    } catch (err) {
+      setErrorMsg('Network error. Failed to add gallery item.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleTopperSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearFeedback();
+    setSubmitting(true);
+
+    try {
+      const res = await fetch('/api/toppers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(topperForm),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setToppers([...toppers, data.data]); // Append to bottom since it's ordered by rank usually
+        setSuccessMsg('Topper added successfully!');
+        setTopperForm({
+          name: '',
+          className: '',
+          score: '',
+          rankText: '',
+          award: '',
+          initials: '',
+          colorStyle: 'border-blue-200 text-blue-600 bg-blue-50',
+        });
+      } else {
+        setErrorMsg(data.error || 'Failed to add topper');
+      }
+    } catch (err) {
+      setErrorMsg('Network error. Failed to add topper.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Delete Action Handlers
   const handleDeleteHw = async (id: number) => {
     if (!confirm('Are you sure you want to delete this homework?')) return;
@@ -235,6 +320,42 @@ export default function AdminDashboardView({
       }
     } catch (err) {
       setErrorMsg('Network error. Failed to remove admission record.');
+    }
+  };
+
+  const handleDeleteGallery = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this gallery item?')) return;
+    clearFeedback();
+
+    try {
+      const res = await fetch(`/api/gallery?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setGallery(gallery.filter((item) => item.id !== id));
+        setSuccessMsg('Gallery item deleted.');
+      } else {
+        setErrorMsg(data.error || 'Failed to delete gallery item');
+      }
+    } catch (err) {
+      setErrorMsg('Network error. Failed to delete gallery item.');
+    }
+  };
+
+  const handleDeleteTopper = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this topper?')) return;
+    clearFeedback();
+
+    try {
+      const res = await fetch(`/api/toppers?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setToppers(toppers.filter((item) => item.id !== id));
+        setSuccessMsg('Topper deleted.');
+      } else {
+        setErrorMsg(data.error || 'Failed to delete topper');
+      }
+    } catch (err) {
+      setErrorMsg('Network error. Failed to delete topper.');
     }
   };
 
@@ -321,6 +442,24 @@ export default function AdminDashboardView({
                 {admissions.length}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => { setActiveTab('gallery'); clearFeedback(); }}
+            className={`flex items-center space-x-2 py-4 px-4 border-b-2 font-heading font-bold text-sm transition-all whitespace-nowrap ${
+              activeTab === 'gallery' ? 'border-accent text-accent' : 'border-transparent text-slate-500 hover:text-primary'
+            }`}
+          >
+            <ImageIcon className="h-4.5 w-4.5" />
+            <span>Gallery</span>
+          </button>
+          <button
+            onClick={() => { setActiveTab('toppers'); clearFeedback(); }}
+            className={`flex items-center space-x-2 py-4 px-4 border-b-2 font-heading font-bold text-sm transition-all whitespace-nowrap ${
+              activeTab === 'toppers' ? 'border-accent text-accent' : 'border-transparent text-slate-500 hover:text-primary'
+            }`}
+          >
+            <Trophy className="h-4.5 w-4.5" />
+            <span>Toppers</span>
           </button>
         </div>
 
@@ -695,6 +834,243 @@ export default function AdminDashboardView({
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {/* 5. GALLERY PANEL */}
+        {activeTab === 'gallery' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Form */}
+            <div className="lg:col-span-4 bg-white border border-slate-100 shadow-xl rounded-3xl p-6 sm:p-8">
+              <h2 className="font-heading text-lg font-bold text-primary mb-6 flex items-center">
+                <PlusCircle className="h-5 w-5 text-accent mr-2" />
+                Add Gallery Item
+              </h2>
+              <form onSubmit={handleGallerySubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Item Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={galleryForm.title}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, title: e.target.value })}
+                    placeholder="e.g. Annual Celebration"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Item Description *</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={galleryForm.description}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}
+                    placeholder="Provide a short description..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-xl transition-colors shadow-md"
+                >
+                  {submitting ? 'Adding...' : 'Add Gallery Item'}
+                </button>
+              </form>
+            </div>
+
+            {/* List */}
+            <div className="lg:col-span-8 bg-white border border-slate-100 shadow-xl rounded-3xl p-6 sm:p-8">
+              <h2 className="font-heading text-lg font-bold text-primary mb-6">Gallery Items Log</h2>
+              {gallery.length === 0 ? (
+                <p className="text-slate-400 text-sm text-center py-12">No gallery items posted yet.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-sm text-slate-500">
+                    <thead className="bg-slate-50 text-slate-700 text-xs font-bold uppercase tracking-wider">
+                      <tr>
+                        <th className="px-4 py-3 border-b">Title</th>
+                        <th className="px-4 py-3 border-b">Description</th>
+                        <th className="px-4 py-3 border-b text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                      {gallery.map((g) => (
+                        <tr key={g.id} className="hover:bg-slate-50/50">
+                          <td className="px-4 py-3 font-bold text-slate-900 max-w-xs truncate">{g.title}</td>
+                          <td className="px-4 py-3 text-xs max-w-sm truncate">{g.description}</td>
+                          <td className="px-4 py-3 text-center">
+                            <button
+                              onClick={() => handleDeleteGallery(g.id)}
+                              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-2 rounded-xl transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-4.5 w-4.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 6. TOPPERS PANEL */}
+        {activeTab === 'toppers' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Form */}
+            <div className="lg:col-span-4 bg-white border border-slate-100 shadow-xl rounded-3xl p-6 sm:p-8">
+              <h2 className="font-heading text-lg font-bold text-primary mb-6 flex items-center">
+                <PlusCircle className="h-5 w-5 text-accent mr-2" />
+                Add Topper
+              </h2>
+              <form onSubmit={handleTopperSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Student Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={topperForm.name}
+                    onChange={(e) => setTopperForm({ ...topperForm, name: e.target.value })}
+                    placeholder="e.g. Ankit Gurjar"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Class *</label>
+                    <input
+                      type="text"
+                      required
+                      value={topperForm.className}
+                      onChange={(e) => setTopperForm({ ...topperForm, className: e.target.value })}
+                      placeholder="e.g. Class 10th"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Score *</label>
+                    <input
+                      type="text"
+                      required
+                      value={topperForm.score}
+                      onChange={(e) => setTopperForm({ ...topperForm, score: e.target.value })}
+                      placeholder="e.g. 91.40%"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Rank Text *</label>
+                    <input
+                      type="text"
+                      required
+                      value={topperForm.rankText}
+                      onChange={(e) => setTopperForm({ ...topperForm, rankText: e.target.value })}
+                      placeholder="e.g. Rank 1"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Initials *</label>
+                    <input
+                      type="text"
+                      required
+                      value={topperForm.initials}
+                      onChange={(e) => setTopperForm({ ...topperForm, initials: e.target.value })}
+                      placeholder="e.g. AG"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Award Description *</label>
+                  <input
+                    type="text"
+                    required
+                    value={topperForm.award}
+                    onChange={(e) => setTopperForm({ ...topperForm, award: e.target.value })}
+                    placeholder="e.g. 1st Position"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Color Style *</label>
+                  <select
+                    required
+                    value={topperForm.colorStyle}
+                    onChange={(e) => setTopperForm({ ...topperForm, colorStyle: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                  >
+                    <option value="border-yellow-400 text-yellow-600 bg-yellow-50">Gold Medalist</option>
+                    <option value="border-slate-300 text-slate-500 bg-slate-50">Silver Medalist</option>
+                    <option value="border-amber-600 text-amber-700 bg-amber-50">Bronze Medalist</option>
+                    <option value="border-blue-200 text-blue-600 bg-blue-50">Blue Styling (Default)</option>
+                    <option value="border-pink-200 text-pink-600 bg-pink-50">Pink Styling (12th Class)</option>
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-xl transition-colors shadow-md"
+                >
+                  {submitting ? 'Adding...' : 'Add Topper'}
+                </button>
+              </form>
+            </div>
+
+            {/* List */}
+            <div className="lg:col-span-8 bg-white border border-slate-100 shadow-xl rounded-3xl p-6 sm:p-8">
+              <h2 className="font-heading text-lg font-bold text-primary mb-6">Registered Toppers</h2>
+              {toppers.length === 0 ? (
+                <p className="text-slate-400 text-sm text-center py-12">No toppers registered yet.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-sm text-slate-500">
+                    <thead className="bg-slate-50 text-slate-700 text-xs font-bold uppercase tracking-wider">
+                      <tr>
+                        <th className="px-4 py-3 border-b">Name</th>
+                        <th className="px-4 py-3 border-b">Class / Rank</th>
+                        <th className="px-4 py-3 border-b">Score</th>
+                        <th className="px-4 py-3 border-b text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                      {toppers.map((t) => (
+                        <tr key={t.id} className="hover:bg-slate-50/50">
+                          <td className="px-4 py-3 font-bold text-slate-900">{t.name}</td>
+                          <td className="px-4 py-3 text-xs">
+                            <span className="font-semibold block">{t.class}</span>
+                            <span className="text-slate-400">{t.rank_text}</span>
+                          </td>
+                          <td className="px-4 py-3 text-accent font-bold">{t.score}</td>
+                          <td className="px-4 py-3 text-center">
+                            <button
+                              onClick={() => handleDeleteTopper(t.id)}
+                              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-2 rounded-xl transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-4.5 w-4.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
