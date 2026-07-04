@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
+    "cloudinary": "^2.10.0",
     "jose": "^6.2.3",
     "lucide-react": "^1.22.0",
     "next": "16.2.9",

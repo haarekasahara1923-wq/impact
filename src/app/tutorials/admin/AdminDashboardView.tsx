@@ -72,6 +72,10 @@ export default function AdminDashboardView({
     title: '',
     description: '',
   });
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string>('');
+  const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
+  const [uploadProgress, setUploadProgress] = useState<string>('');
 
   const [topperForm, setTopperForm] = useState({
     name: '',
@@ -188,16 +192,50 @@ export default function AdminDashboardView({
     }
   };
 
+  const handleMediaFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMediaFile(file);
+    setMediaPreview(URL.createObjectURL(file));
+    setMediaType(file.type.startsWith('video/') ? 'video' : 'image');
+  };
+
   const handleGallerySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearFeedback();
     setSubmitting(true);
 
+    let uploadedUrl = '';
+    let uploadedType = '';
+
     try {
+      // Step 1: Upload media file to Cloudinary if selected
+      if (mediaFile) {
+        setUploadProgress('Uploading media to Cloudinary...');
+        const formData = new FormData();
+        formData.append('file', mediaFile);
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok || !uploadData.success) {
+          setErrorMsg(uploadData.error || 'Media upload failed');
+          setSubmitting(false);
+          setUploadProgress('');
+          return;
+        }
+        uploadedUrl = uploadData.url;
+        uploadedType = uploadData.mediaType;
+        setUploadProgress('Media uploaded! Saving to database...');
+      }
+
+      // Step 2: Save gallery item to DB
       const res = await fetch('/api/gallery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(galleryForm),
+        body: JSON.stringify({
+          ...galleryForm,
+          mediaUrl: uploadedUrl || null,
+          mediaType: uploadedType || null,
+        }),
       });
 
       const data = await res.json();
@@ -205,6 +243,9 @@ export default function AdminDashboardView({
         setGallery([data.data, ...gallery]);
         setSuccessMsg('Gallery item added successfully!');
         setGalleryForm({ title: '', description: '' });
+        setMediaFile(null);
+        setMediaPreview('');
+        setUploadProgress('');
       } else {
         setErrorMsg(data.error || 'Failed to add gallery item');
       }
@@ -212,6 +253,7 @@ export default function AdminDashboardView({
       setErrorMsg('Network error. Failed to add gallery item.');
     } finally {
       setSubmitting(false);
+      setUploadProgress('');
     }
   };
 
@@ -863,7 +905,7 @@ export default function AdminDashboardView({
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Item Description *</label>
                   <textarea
                     required
-                    rows={4}
+                    rows={3}
                     value={galleryForm.description}
                     onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}
                     placeholder="Provide a short description..."
@@ -871,12 +913,71 @@ export default function AdminDashboardView({
                   />
                 </div>
 
+                {/* Media Upload Section */}
+                <div className="border-t border-slate-100 pt-4">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                    📷 Upload Image / 🎥 Video (Optional)
+                  </label>
+
+                  {/* Media Type Toggle */}
+                  <div className="flex rounded-xl overflow-hidden border border-slate-200 mb-3">
+                    <button
+                      type="button"
+                      onClick={() => { setMediaType('image'); setMediaFile(null); setMediaPreview(''); }}
+                      className={`flex-1 py-2 text-xs font-bold transition-colors ${
+                        mediaType === 'image' ? 'bg-accent text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                      }`}
+                    >
+                      📷 Image
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setMediaType('video'); setMediaFile(null); setMediaPreview(''); }}
+                      className={`flex-1 py-2 text-xs font-bold transition-colors ${
+                        mediaType === 'video' ? 'bg-accent text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                      }`}
+                    >
+                      🎥 Video
+                    </button>
+                  </div>
+
+                  {/* File Input */}
+                  <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                    <span className="text-slate-400 text-xs font-medium text-center px-4">
+                      {mediaFile ? (
+                        <span className="text-emerald-600 font-bold">✓ {mediaFile.name}</span>
+                      ) : (
+                        <>Click to select {mediaType === 'video' ? 'a video' : 'an image'}<br />
+                        <span className="text-[10px] text-slate-400">Supported: {mediaType === 'video' ? 'MP4, MOV, AVI, WEBM' : 'JPG, PNG, WEBP, GIF'}</span></>
+                      )}
+                    </span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept={mediaType === 'video' ? 'video/*' : 'image/*'}
+                      onChange={handleMediaFileChange}
+                    />
+                  </label>
+
+                  {/* Preview */}
+                  {mediaPreview && mediaType === 'image' && (
+                    <img src={mediaPreview} alt="Preview" className="mt-3 w-full h-32 object-cover rounded-xl border border-slate-200" />
+                  )}
+                  {mediaPreview && mediaType === 'video' && (
+                    <video src={mediaPreview} controls className="mt-3 w-full h-32 rounded-xl border border-slate-200" />
+                  )}
+                </div>
+
+                {uploadProgress && (
+                  <p className="text-xs text-blue-600 font-medium animate-pulse">{uploadProgress}</p>
+                )}
+
                 <button
                   type="submit"
                   disabled={submitting}
                   className="w-full bg-accent hover:bg-accent-dark text-white font-bold py-3 rounded-xl transition-colors shadow-md"
                 >
-                  {submitting ? 'Adding...' : 'Add Gallery Item'}
+                  {submitting ? (uploadProgress || 'Saving...') : 'Add to Gallery'}
                 </button>
               </form>
             </div>

@@ -14,15 +14,15 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { title, description } = body;
+    const { title, description, mediaUrl, mediaType } = body;
 
     if (!title || !description) {
       return NextResponse.json({ success: false, error: 'Title and description are required' }, { status: 400 });
     }
 
     const result = await sql(
-      'INSERT INTO gallery_items (title, description) VALUES ($1, $2) RETURNING *',
-      [title, description]
+      'INSERT INTO gallery_items (title, description, media_url, media_type) VALUES ($1, $2, $3, $4) RETURNING *',
+      [title, description, mediaUrl || null, mediaType || null]
     );
 
     return NextResponse.json({ success: true, data: result[0] });

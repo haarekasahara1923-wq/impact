@@ -1,4 +1,4 @@
-import { Camera, Award, Star, Trophy, AlertTriangle } from 'lucide-react';
+import { Camera, Star, Trophy, Play } from 'lucide-react';
 import { sql } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -32,24 +32,12 @@ export default async function MediaPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
-        
-        {dbError && (
-          <div className="mb-12 bg-rose-50 border border-rose-100 rounded-2xl p-6 flex items-start space-x-4 max-w-3xl mx-auto">
-            <AlertTriangle className="h-6 w-6 text-rose-500 shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-heading font-bold text-rose-800 text-base">Database Connection Error</h3>
-              <p className="text-slate-600 text-sm mt-1">
-                Failed to load live media data. Please ensure your database is correctly configured and initialized.
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Results / Toppers Section */}
         <section className="mb-20">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <div className="inline-flex items-center space-x-2 bg-orange-100 text-accent text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-3">
-              <Trophy className="h-4.5 w-4.5" />
+              <Trophy className="h-4 w-4" />
               <span>Wall Of Fame</span>
             </div>
             <h2 className="font-heading text-3xl font-bold text-primary">
@@ -66,32 +54,19 @@ export default async function MediaPage() {
                   key={t.id}
                   className={`bg-white rounded-3xl border-2 shadow-lg overflow-hidden flex flex-col items-center p-8 text-center relative transition-transform duration-300 hover:-translate-y-1.5 ${t.color_style}`}
                 >
-                  {/* Medal Icon Badge */}
-                  <div className="absolute top-4 right-4 flex items-center space-x-1">
+                  <div className="absolute top-4 right-4">
                     <Star className="h-5 w-5 fill-current" />
                   </div>
-
-                  {/* Avatar Placeholder */}
                   <div className="w-20 h-20 rounded-full bg-primary text-white font-heading text-2xl font-bold flex items-center justify-center shadow-md mb-6">
                     {t.initials}
                   </div>
-
                   <span className="text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-white border border-slate-100 mb-3 shadow-sm">
                     {t.award}
                   </span>
-
-                  <h3 className="font-heading text-xl font-bold text-primary mb-1">
-                    {t.name}
-                  </h3>
-                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-2">
-                    {t.class}
-                  </p>
-                  <div className="text-accent text-3xl font-black mb-1">
-                    {t.score}
-                  </div>
-                  <p className="text-slate-400 text-xs font-semibold">
-                    {t.rank_text}
-                  </p>
+                  <h3 className="font-heading text-xl font-bold text-primary mb-1">{t.name}</h3>
+                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-2">{t.class}</p>
+                  <div className="text-accent text-3xl font-black mb-1">{t.score}</div>
+                  <p className="text-slate-400 text-xs font-semibold">{t.rank_text}</p>
                 </div>
               ))}
             </div>
@@ -102,7 +77,7 @@ export default async function MediaPage() {
         <section className="border-t border-slate-100 pt-16">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="font-heading text-3xl font-bold text-primary mb-3">
-              Student Achievements & Moments
+              Student Achievements &amp; Moments
             </h2>
             <p className="text-slate-500 text-sm">
               Capturing daily study routines, test award distributions, and extra-curricular initiatives.
@@ -118,30 +93,49 @@ export default async function MediaPage() {
                   key={item.id}
                   className="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col"
                 >
-                  {/* Photo Grid Placeholder */}
-                  <div className="relative aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center p-6 border-b border-slate-200 overflow-hidden shrink-0">
-                    <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-5 transition-opacity duration-300" />
-                    <Camera className="h-10 w-10 text-slate-400 mb-3 group-hover:scale-110 group-hover:text-accent transition-all duration-300" />
-                    <span className="font-heading text-slate-400 text-xs font-bold uppercase tracking-widest">
-                      Achievement Photo
-                    </span>
-                    <span className="text-[10px] text-slate-400 mt-1">
-                      [Slot {idx + 1}]
-                    </span>
+                  {/* Media Display */}
+                  <div className="relative aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden shrink-0">
+                    {item.media_url && item.media_type === 'image' ? (
+                      <img
+                        src={item.media_url}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : item.media_url && item.media_type === 'video' ? (
+                      <video
+                        src={item.media_url}
+                        controls
+                        className="w-full h-full object-cover"
+                        preload="metadata"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+                        <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-5 transition-opacity duration-300" />
+                        <Camera className="h-10 w-10 text-slate-400 mb-3 group-hover:scale-110 group-hover:text-accent transition-all duration-300" />
+                        <span className="font-heading text-slate-400 text-xs font-bold uppercase tracking-widest">
+                          Achievement Photo
+                        </span>
+                        <span className="text-[10px] text-slate-400 mt-1">[Slot {idx + 1}]</span>
+                      </div>
+                    )}
                   </div>
+
                   {/* Photo Details */}
                   <div className="p-6 bg-white flex-grow flex flex-col justify-between">
                     <div>
-                      <h3 className="font-heading text-base font-bold text-primary mb-1">
-                        {item.title}
-                      </h3>
-                      <p className="text-slate-500 text-xs leading-relaxed">
-                        {item.description}
-                      </p>
+                      <h3 className="font-heading text-base font-bold text-primary mb-1">{item.title}</h3>
+                      <p className="text-slate-500 text-xs leading-relaxed">{item.description}</p>
                     </div>
-                    <span className="inline-flex items-center text-[10px] font-bold uppercase text-accent tracking-wider mt-4">
-                      Impact Photo Archive
-                    </span>
+                    <div className="flex items-center justify-between mt-4">
+                      <span className="inline-flex items-center text-[10px] font-bold uppercase text-accent tracking-wider">
+                        Impact Photo Archive
+                      </span>
+                      {item.media_type === 'video' && (
+                        <span className="flex items-center text-[10px] font-bold text-rose-500 uppercase tracking-wider">
+                          <Play className="h-3 w-3 mr-1 fill-current" /> Video
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
